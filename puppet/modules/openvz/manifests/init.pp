@@ -22,25 +22,107 @@
 # **** END LICENSE BLOCK *****
 # --------------------------------------------------------------------
 
-class s_openvz { }
+class openvz { }
 
-class s_openvz::getTemplateCentOS64 {
-        exec {
-                "get CentOS5 64 template":
-                        command => "wget -c http://download.openvz.org/template/precreated/centos-5-x86_64.tar.gz",
-                        cwd => "/vz/template/cache/",
-                        require => [Package["ovzkernel"],Package["vzctl"]],
-                        creates => "/vz/template/cache/centos-5-x86_64.tar.gz";
-        }
+class openvz::getTemplateCentOS64 { 
+	exec {
+		"get CentOS5 64 template":
+			command => "wget -c http://download.openvz.org/template/precreated/centos-5-x86_64.tar.gz",
+			cwd => "/vz/template/cache/",
+			require => [Package["ovzkernel"],Package["vzctl"]],
+			creates => "/vz/template/cache/centos-5-x86_64.tar.gz";
+	}
 }
 
-class s_openvz::getTemplateDebian64 {
-        exec {
-                "get Debian6 64 template":
-                        command => "wget -c http://download.openvz.org/template/precreated/debian-6.0-x86_64.tar.gz",
-                        cwd => "/vz/template/cache/",
-                        require => [Package["ovzkernel"],Package["vzctl"]],
-                        creates => "/vz/template/cache/debian-6.0-x86_64.tar.gz";
-        }
+class openvz::getTemplateDebian64 { 
+	exec {
+		"get Debian6 64 template":
+			command => "wget -c http://download.openvz.org/template/precreated/debian-6.0-x86_64.tar.gz",
+			cwd => "/vz/template/cache/",
+			require => [Package["ovzkernel"],Package["vzctl"]],
+			creates => "/vz/template/cache/debian-6.0-x86_64.tar.gz";
+	}
+}
+
+class openvz::server inherits openvz {
+	# OpenVZ installation according to http://wiki.openvz.org/Quick_installation
+	file {
+		"/etc/yum.repos.d/openvz.repo":
+			mode => 0644,
+			owner => root,
+			group => root,
+			source => "puppet://${puppetserver}/openvz/etc/yum.repos.d/openvz.repo",
+			ensure => present,
+	}
+	exec {
+		"import_openvz_repo_key":
+			command => "rpm --import  http://download.openvz.org/RPM-GPG-Key-OpenVZ",
+			subscribe => File["/etc/yum.repos.d/openvz.repo"],
+			refreshonly => true
+	}
+	package {
+		"ovzkernel":
+			name => "ovzkernel.x86_64",
+			ensure => installed,
+			require => File["/etc/yum.repos.d/openvz.repo"];
+		"vzctl":
+			name => "vzctl.x86_64",
+			ensure => installed,
+			require => [ File["/etc/yum.repos.d/openvz.repo"], Package["ovzkernel"] ];
+		"vzquota":
+			name => "vzquota.x86_64",
+			ensure => installed,
+			require => [ File["/etc/yum.repos.d/openvz.repo"], Package["ovzkernel"] ];
+	}
+	file {
+	# special tuning for ovz
+		"/etc/vz/vz.conf":
+			mode => 0644,
+			owner => root,
+			group => root,
+			source => "puppet://${puppetserver}/openvz/etc/vz/vz.conf",
+			ensure => present,
+			require => Package["vzctl"];
+	# kernel tuning for ovz
+		"/etc/sysctl.conf":
+			mode => 0644,
+			owner => root,
+			group => root,
+			source => "puppet://${puppetserver}/openvz/etc/sysctl.conf",
+			ensure => present;
+	# deactivate SELinux
+		"/etc/sysconfig/selinux":
+			mode => 0644,
+			owner => root,
+			group => root,
+			source => "puppet://${puppetserver}/openvz/etc/sysconfig/selinux",
+			ensure => present;
+	}
+## TODO: this lines need the common module
+#	append_if_no_such_line { "add module nfs":
+#		file => "/etc/rc.d/rc.local",
+#		line => "modprobe nfs"
+#	}
+
+	# stop unneeded services
+	$stopped_services = $operatingsystem ? {
+		"CentOS" => ["cups", "cpuspeed", "nfslock", "dsm_om_shrsvc", "dsm_om_connsvc", "auditd"],
+		default => []
+	}
+	service {
+		$stopped_services:
+			enable => false,
+			hasstatus => true,
+			ensure => stopped;
+	}
+
+	# run ovz environment at boot
+	service {
+		"vz":
+			enable => true,
+			hasstatus => true,
+			ensure => running,
+			require => Package["vzctl"];
+	}
 }
 
