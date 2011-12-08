@@ -81,8 +81,8 @@ class tomcat($tcversion=7, $tcmysql=present) {
 				},
 			source => "puppet://${puppetserver}/tomcat/mysql-connector-java-5.1.18-bin.jar",
 			mode => 644,
-			owner => tomcat,
-			group => services,
+			owner => $tcuser,
+			group => $tcgroup,
 			require => File["$tcpath"];
 		"/etc/init.d/tomcat":
 			ensure => present,
