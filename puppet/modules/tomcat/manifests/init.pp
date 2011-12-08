@@ -23,9 +23,9 @@
 # --------------------------------------------------------------------
 
 class tomcat($tcversion=7, $tcmysql=present) {
-	tcuser = "tomcat"
-	tcgroup = "tomcat"
-	tcpath = "/opt/tomcat"
+	$tcuser = "tomcat"
+	$tcgroup = "tomcat"
+	$tcpath = "/opt/tomcat"
 
         group {
                 "$tcgroup":
@@ -86,7 +86,7 @@ class tomcat($tcversion=7, $tcmysql=present) {
 			require => File["$tcpath"];
 		"/etc/init.d/tomcat":
 			ensure => present,
-			content => template("/tomcat/etc/init.d/tomcat.erb"),
+			content => template("tomcat/etc/init.d/tomcat.erb"),
 			owner => root,
 			group => root,
 			mode => 755,

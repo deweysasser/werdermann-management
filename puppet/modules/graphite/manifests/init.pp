@@ -25,9 +25,15 @@
 # INFO: This module is written for Debian/Ubuntu. At this point
 # it is a standalone with own Apache. Sould be seperated in the future.
 
-class graphite {}
+import "classes/*.pp"
 
-class graphite::server::debian {
+class graphite {
+
+	graphiteVersion = graphite-web-0.9.9
+	carbonVersion = carbon-0.9.9
+}
+
+class graphite::server::debian inherits graphite {
 	package {
 		[
 			python-cairo,

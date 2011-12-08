@@ -45,6 +45,11 @@ class java::jdk16 inherits java {
 			ensure => present,
 			source => "puppet://${puppetserver}/java/etc/profile.d/jdk.sh",
 			require => Exec["install jdk"];
+	}
+}
+
+class java::cacerts inherits java::jdk16 {
+	file {
 		## Includes the special CA
 		"cacerts_jdk":
 			owner => root,
