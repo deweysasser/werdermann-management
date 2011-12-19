@@ -33,10 +33,10 @@ class graphite { }
 class graphite::all inherits graphite {
 
 	# for full functionality we need this packages:
-	# madatory: python-cairo, python-django, python-twisted, python-django-tagging
+	# madatory: python-cairo, python-django, python-twisted, python-django-tagging, python-simplejson
 	# optinal: python-ldap, python-memcache, memcached, python-sqlite
 
-	$graphitpkgs = ["python-cairo","python-twisted","python-django","python-django-tagging","python-ldap","python-memcache","python-sqlite"]
+	$graphitpkgs = ["python-cairo","python-twisted","python-django","python-django-tagging","python-ldap","python-memcache","python-sqlite","python-simplejson"]
 
 	package { $graphitpkgs: ensure => installed }
 
