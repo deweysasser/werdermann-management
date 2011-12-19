@@ -162,9 +162,9 @@ class graphite::all inherits graphite {
 	# configure carbon engine
 
 	file {
-		"/opt/graphite/conf/storage-shema.conf":
+		"/opt/graphite/conf/storage-schemas.conf":
 			mode => 644,
-			content => template("graphite/opt/graphite/conf/storage-shema.conf.erb"),
+			content => template("graphite/opt/graphite/conf/storage-schemas.conf.erb"),
 			require => Exec["Install $carbonVersion"],
 			notify => Exec["restart carbon engine"];
 		"/opt/graphite/conf/carbon.conf":
