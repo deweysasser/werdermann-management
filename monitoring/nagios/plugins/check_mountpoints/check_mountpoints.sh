@@ -28,7 +28,7 @@
 # Check if all specified nfs/cifs mounts exist and if they are correct implemented.
 # That means we check /etc/fstab, the mountpoints in the filesystem and if they
 # are mounted. It is written for Linux, uses proc-Filesystem and was tested on
-# Debian, OpenSuse 10.1 10.2 10.3 11.0, SLES 10.1 11.1, centos 5.* and solaris
+# Debian, OpenSuse 10.1 10.2 10.3 11.0, SLES 10.1 11.1, RHEL 5 6, CentOS 5 6 and solaris
 #
 # @author: Daniel Werdermann / dwerdermann@web.de
 # @version: 1.4
