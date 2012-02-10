@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # --------------------------------------------------------------------
 # **** BEGIN LICENSE BLOCK *****
@@ -31,9 +31,13 @@
 # Debian, OpenSuse 10.1 10.2 10.3 11.0, SLES 10.1 11.1, centos 5.* and solaris
 #
 # @author: Daniel Werdermann / dwerdermann@web.de
-# @version: 1.3
-# @date: 2011-11-04 16:23:10 CEST
+# @version: 1.4
+# @date: 2012-02-10 10:04:55 CEST
 #
+# changes 1.4
+#  - add support for davfs
+#  - look for logger path via which command
+#  - change shebang to /bin/bash
 # changes 1.3
 #  - add license information
 # changes 1.2
@@ -50,7 +54,7 @@
 # --------------------------------------------------------------------
 PROGNAME=$(basename $0)
 ERR_MESG=()
-LOGGER="/bin/logger -i -p kern.warn -t"
+LOGGER="`which logger` -i -p kern.warn -t"
 MTAB=/proc/mounts
 
 export PATH="/bin:/usr/local/bin:/sbin:/usr/bin:/usr/sbin"
@@ -152,7 +156,7 @@ fi
 for MP in ${MPS} ; do
 	## if it is not an openVZ Container
 	if [ ! -f /proc/vz/veinfo ]; then	
-		awk '{if ($'${FSF}'=="nfs" || $'${FSF}'=="nfs4" || $'${FSF}'=="cifs"){print $'${MF}'}}' ${FSTAB} | grep -q ${MP} &>/dev/null
+		awk '{if ($'${FSF}'=="nfs" || $'${FSF}'=="nfs4" || $'${FSF}'=="davfs" || $'${FSF}'=="cifs"){print $'${MF}'}}' ${FSTAB} | grep -q ${MP} &>/dev/null
 		if [ $? -ne 0 ]; then
 			log "WARN: ${MP} don't exists in /etc/fstab"
 			ERR_MESG[${#ERR_MESG[*]}]="${MP} don't exists in /etc/fstab"
@@ -160,7 +164,7 @@ for MP in ${MPS} ; do
 	fi
 
 	## check kernel mounts
-	grep -E " ${MP} (cifs|nfs|nfs4|simfs) " -q /proc/mounts &>/dev/null
+	grep -E " ${MP} (cifs|nfs|nfs4|simfs|fuse) " -q /proc/mounts &>/dev/null
 	if [ $? -ne 0 ]; then
 		log "WARN: ${MP} isn't mounted"
 		ERR_MESG[${#ERR_MESG[*]}]="${MP} isn't mounted"
