@@ -184,7 +184,7 @@ class graphite::all inherits graphite {
 			hasstatus => true,
 			hasrestart => false,
 			ensure => running,
-			require => File["/opt/graphite/conf/storage-shema.conf"];
+			require => File["/opt/graphite/conf/storage-schemas.conf"];
 	}
 
 	exec {
