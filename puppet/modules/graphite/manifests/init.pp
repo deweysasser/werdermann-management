@@ -32,6 +32,8 @@ class graphite { }
 
 class graphite::all inherits graphite {
 
+        Exec { path => ["/sbin", "/usr/sbin", "/bin", "/usr/bin" ] }
+
 	# for full functionality we need this packages:
 	# madatory: python-cairo, python-django, python-twisted, python-django-tagging, python-simplejson
 	# optinal: python-ldap, python-memcache, memcached, python-sqlite
