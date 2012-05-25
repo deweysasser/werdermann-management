@@ -52,13 +52,20 @@ class graphite::all inherits graphite {
 		"libapache2-mod-python": ensure => installed;
 	}
 
+	exec { "Disable default apache site":
+	  command => "a2dissite default",
+	  onlyif => "test -f /etc/apache2/sites-enabled/000-default",
+	  require => Package["apache2"],
+	  notify => Service["apache2"],
+	}
+
 	service {
 		"apache2":
 			hasrestart => true,
 			hasstatus => true,
 			ensure => running,
 			enable => true,
-			require => Exec["Chown graphit for apache"];
+			require => Exec["Chown graphite for apache", "Disable default apache site"];
 	}
 
 	# variables
@@ -135,9 +142,11 @@ class graphite::all inherits graphite {
 	# change access permitions for apache
 
 	exec {
-		"Chown graphit for apache":
+		"Chown graphite for apache":
 			command => "chown -R www-data:www-data /opt/graphite/storage/",
-			cwd => "/opt/graphite/";
+			cwd => "/opt/graphite/",
+			require => Exec["Install $carbonVersion"],
+			;
 	}
 
 	# Deploy configfiles
@@ -154,11 +163,13 @@ class graphite::all inherits graphite {
 			group => "www-data",
 			content => template("graphite/etc/apache2/sites-available/graphite.conf.erb"),
 			require => [Package["apache2"],Exec["Initial django db creation"]],
-			notify => Service["apache2"];
+			;
 		"/etc/apache2/sites-enabled/graphite.conf":
 			ensure => link,
 			target => "/etc/apache2/sites-available/graphite.conf",
-			require => File["/etc/apache2/sites-available/graphite.conf"];
+			require => File["/etc/apache2/sites-available/graphite.conf"],
+ 			notify => Service["apache2"],
+
 	}
 
 	# configure carbon engine
