@@ -136,7 +136,9 @@ class graphite::all inherits graphite {
 			cwd => "/opt/graphite/webapp/graphite",
 			require => [Exec["Install $graphiteVersion","Install $carbonVersion","Install $whisperVersion"],File["/usr/lib/python2.6/dist-packages/django"]],
 			refreshonly => true,
-			subscribe => [Exec["Install $graphiteVersion"],Package["python-django-tagging"]];
+			subscribe => [Exec["Install $graphiteVersion"],Package["python-django-tagging"]],
+			before => Exec["Chown graphite for apache"],
+			;
 	}
 
 	# change access permitions for apache
