@@ -132,7 +132,7 @@ class graphite::all inherits graphite {
 
 	exec {
 		"Initial django db creation":
-			command => "python manage.py syncdb",
+			command => "python manage.py syncdb --noinput",
 			cwd => "/opt/graphite/webapp/graphite",
 			require => [Exec["Install $graphiteVersion","Install $carbonVersion","Install $whisperVersion"],File["/usr/lib/python2.6/dist-packages/django"]],
 			refreshonly => true,
